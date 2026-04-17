@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" id="root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <meta name="description" content="Amenities at Shady Meadows B&B - everything included in your stay">
+  <title>Amenities – Shady Meadows B&B</title>
+
+  <!-- Stylesheets -->
+   <link href="css/styles.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── Base ─────────────────────────────────────────────── */
+:root {
+  --green-dark:   #2d4a3e;
+  --green-mid:    #3d6b5a;
+  --green-light:  #e8f0ec;
+  --gold:         #c8a96e;
+  --gold-light:   #f5ecd8;
+  --text-dark:    #1a2820;
+  --text-muted:   #6c757d;
+  --white:        #ffffff;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: var(--text-dark);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Playfair Display', serif;
+}
+
+/* ── Hero ─────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 60%, #4e8a72 100%);
+  color: var(--white);
+  padding: 5rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(200,169,110,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.07) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.hero .lead {
+  color: rgba(255,255,255,0.85);
+  font-weight: 300;
+  font-size: 1.15rem;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--green-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  border-radius: 2rem;
+  margin-bottom: 1rem;
+}
+
+.hero-divider {
+  width: 60px;
+  height: 3px;
+  background: var(--gold);
+  margin: 1.5rem auto;
+  border-radius: 2px;
+}
+
+/* ── Section Title ────────────────────────────────────── */
+.section-title {
+  font-size: 2rem;
+  color: var(--green-dark);
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: var(--text-muted);
+  font-weight: 300;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.title-accent {
+  display: block;
+  width: 44px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 2px;
+  margin: 1rem auto 2.5rem;
+}
+
+/* ── Amenity Cards ────────────────────────────────────── */
+.amenity-card {
+  border: none;
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 2px 12px rgba(45,74,62,0.08);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  height: 100%;
+}
+
+.amenity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(45,74,62,0.14);
+}
+
+.amenity-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--green-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.6rem;
+  color: var(--green-dark);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.amenity-card:hover .amenity-icon-wrap {
+  background: var(--green-dark);
+  color: var(--gold);
+}
+
+.amenity-card .card-title {
+  color: var(--green-dark);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.amenity-card .card-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ── Highlight Strip ──────────────────────────────────── */
+.highlight-strip {
+  background: var(--green-dark);
+  color: var(--white);
+  padding: 3.5rem 0;
+}
+
+.highlight-strip h2 {
+  color: var(--white);
+}
+
+.highlight-strip p {
+  color: rgba(255,255,255,0.75);
+  font-weight: 300;
+}
+
+.highlight-item {
+  text-align: center;
+  padding: 1rem;
+}
+
+.highlight-item .number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+}
+
+.highlight-item .label {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-top: 0.3rem;
+  display: block;
+}
+
+/* ── Breakfast Section ────────────────────────────────── */
+.breakfast-section {
+  background: var(--gold-light);
+}
+
+.breakfast-img-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #d9c9a3;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.breakfast-img-wrap .placeholder-icon {
+  font-size: 5rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.breakfast-tag {
+  display: inline-block;
+  background: var(--green-dark);
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  margin-bottom: 0.75rem;
+  margin-right: 0.4rem;
+}
+
+.menu-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(45,74,62,0.1);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.menu-list li:last-child {
+  border-bottom: none;
+}
+
+.menu-list li i {
+  color: var(--green-mid);
+  flex-shrink: 0;
+}
+
+/* ── Policies ─────────────────────────────────────────── */
+.policy-card {
+  border: none;
+  border-radius: 10px;
+  background: var(--green-light);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.policy-card h5 {
+  color: var(--green-dark);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.policy-card p, .policy-card li {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.policy-card ul {
+  padding-left: 1rem;
+  margin-bottom: 0;
+}
+
+/* ── CTA ──────────────────────────────────────────────── */
+.cta-section {
+  background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+  color: var(--white);
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.cta-section h2 { color: var(--white); }
+
+.cta-section p {
+  color: rgba(255,255,255,0.8);
+  font-weight: 300;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--green-dark);
+  font-weight: 700;
+  border: none;
+  padding: 0.7rem 2rem;
+  border-radius: 2rem;
+  letter-spacing: 0.03em;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-gold:hover {
+  background: #b8945a;
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+/* ── Fade-in animation ────────────────────────────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+  
+</head>
+
+<body>
+<div id="root-container">
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center fw-semibold" href="index.html">
+        Shady Meadows B&amp;B
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html#rooms">Rooms</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#booking">Booking</a></li>
+          <li class="nav-item"><a class="nav-link active fw-semibold" href="amenities.html">Amenities</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#location">Location</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+ <section class="hero text-center">
+    <div class="container position-relative">
+      <span class="hero-badge">Included in every stay</span>
+      <h1 class="display-4 fw-bold mb-3">Our Amenities</h1>
+      <div class="hero-divider"></div>
+      <p class="lead col-lg-6 mx-auto">
+        Everything you need for a comfortable, relaxing stay in the heart of the Newingtonfordburyshire countryside.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== QUICK STATS ========== -->
+  <section class="highlight-strip">
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-3">
+          <div class="highlight-item">
+            <span class="number">3</span>
+            <span class="label">Room types</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="highlight-item">
+            <span class="number">15+</span>
+            <span class="label">Amenities</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="highlight-item">
+            <span class="number">24/7</span>
+            <span class="label">Guest support</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="highlight-item">
+            <span class="number">100%</span>
+            <span class="label">Local breakfast</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== AMENITIES GRID ========== -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-2 fade-up">
+        <h2 class="section-title">What's Included</h2>
+        <p class="section-subtitle">Every room, every night — no hidden extras</p>
+        <span class="title-accent d-block"></span>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-wifi"></i></div>
+            <h5 class="card-title">Free Wi-Fi</h5>
+            <p class="card-text">High-speed wireless internet throughout the property — in all rooms, the dining area, and garden.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-cup-hot"></i></div>
+            <h5 class="card-title">Full English Breakfast</h5>
+            <p class="card-text">Freshly prepared each morning using ingredients sourced from our local Newingtonfordburyshire supermarket.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-tv"></i></div>
+            <h5 class="card-title">Flat-Screen TV</h5>
+            <p class="card-text">Available in Single and Double rooms. Enjoy Freeview channels and catch-up services at your leisure.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-safe"></i></div>
+            <h5 class="card-title">In-Room Safe</h5>
+            <p class="card-text">Secure your valuables with the personal in-room safe available in every room type.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-speaker"></i></div>
+            <h5 class="card-title">DAB Radio</h5>
+            <p class="card-text">Wake up to your favourite station. DAB radios are provided in Double rooms and Suites.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-droplet"></i></div>
+            <h5 class="card-title">Toiletries</h5>
+            <p class="card-text">Complimentary shampoo, conditioner, shower gel, and soap refreshed daily for every guest.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-flower1"></i></div>
+            <h5 class="card-title">Garden Access</h5>
+            <p class="card-text">Stroll through our peaceful meadow garden, perfect for an evening unwind with a cup of tea.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-p-square"></i></div>
+            <h5 class="card-title">Free Parking</h5>
+            <p class="card-text">Ample on-site parking available at no extra charge for all guests throughout your stay.</p>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 fade-up">
+          <div class="amenity-card card p-4 text-center">
+            <div class="amenity-icon-wrap"><i class="bi bi-moon-stars"></i></div>
+            <h5 class="card-title">Turndown Service</h5>
+            <p class="card-text">Each evening our team prepares your room — fresh towels, tidied surfaces, and curtains drawn.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BREAKFAST ========== -->
+  <section class="breakfast-section py-5">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+
+        <div class="col-lg-5 fade-up">
+          <div class="breakfast-img-wrap">
+            <!-- Replace src with an actual image when available -->
+            <img src="room1.jpg" alt="Breakfast at Shady Meadows"
+                 style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:12px;"
+                 onerror="this.style.display='none'">
+            <i class="bi bi-egg-fried placeholder-icon"></i>
+          </div>
+        </div>
+
+        <div class="col-lg-7 fade-up">
+          <span class="breakfast-tag">Served 7:30 – 10:00</span>
+          <span class="breakfast-tag">Every Morning</span>
+          <h2 class="section-title mt-2 mb-3">A Proper Morning Meal</h2>
+          <p class="text-muted mb-4" style="font-weight:300;">
+            We believe a great day starts with a great breakfast. Our morning spread is prepared fresh daily
+            using ingredients from the finest local suppliers in Newingtonfordburyshire.
+          </p>
+          <ul class="menu-list list-unstyled">
+            <li><i class="bi bi-check-circle-fill"></i> Full English: eggs, bacon, sausage, beans &amp; toast</li>
+            <li><i class="bi bi-check-circle-fill"></i> Freshly baked pastries and bread</li>
+            <li><i class="bi bi-check-circle-fill"></i> Seasonal fruit platter</li>
+            <li><i class="bi bi-check-circle-fill"></i> Cereals, granola &amp; yoghurt</li>
+            <li><i class="bi bi-check-circle-fill"></i> Fresh-squeezed orange juice</li>
+            <li><i class="bi bi-check-circle-fill"></i> Freshly brewed tea &amp; coffee</li>
+            <li><i class="bi bi-check-circle-fill"></i> Vegetarian &amp; dietary options available on request</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== POLICIES ========== -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-2 fade-up">
+        <h2 class="section-title">House Policies</h2>
+        <p class="section-subtitle">To keep Shady Meadows a peaceful retreat for all</p>
+        <span class="title-accent d-block"></span>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-md-6 col-lg-3 fade-up">
+          <div class="policy-card">
+            <h5><i class="bi bi-clock text-success"></i> Check-in &amp; Out</h5>
+            <ul>
+              <li>Check-in: from 3:00 PM</li>
+              <li>Check-out: by 11:00 AM</li>
+              <li>Late check-out on request (subject to availability)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 fade-up">
+          <div class="policy-card">
+            <h5><i class="bi bi-slash-circle text-danger"></i> Smoking</h5>
+            <p>Shady Meadows is a strictly non-smoking property. Smoking is not permitted anywhere indoors. A designated outdoor area is provided.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 fade-up">
+          <div class="policy-card">
+            <h5><i class="bi bi-paw text-warning"></i> Pets</h5>
+            <p>We love animals! Well-behaved pets are welcome in selected rooms. Please contact us in advance to arrange a pet-friendly room.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 fade-up">
+          <div class="policy-card">
+            <h5><i class="bi bi-volume-mute text-primary"></i> Quiet Hours</h5>
+            <p>To ensure all guests enjoy a restful stay, we observe quiet hours between 10:00 PM and 8:00 AM.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="cta-section fade-up">
+    <div class="container">
+      <h2 class="display-6 fw-bold mb-3">Ready to Experience It?</h2>
+      <p>Book your stay at Shady Meadows and enjoy all these amenities from the moment you arrive.</p>
+      <a href="index.html#booking" class="btn btn-gold btn-lg me-3">Book Now</a>
+      <a href="index.html#contact" class="btn btn-outline-light btn-lg">Get in Touch</a>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-dark text-white py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h5 class="mb-3">Shady Meadows B&amp;B</h5>
+          <p class="mb-3" style="font-weight:300; color: rgba(255,255,255,0.7);">
+            A delightful Bed &amp; Breakfast nestled in the hills on Newingtonfordburyshire.
+            A place so beautiful you will never want to leave.
+          </p>
+          <div class="d-flex gap-2">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-facebook"></i></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-instagram"></i></a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-twitter"></i></a>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <h5 class="mb-3">Contact Us</h5>
+          <ul class="list-unstyled mb-0" style="color: rgba(255,255,255,0.7); font-weight:300;">
+            <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Shady Meadows B&amp;B, Shadows valley, Newingtonfordburyshire, Dilbery, N1 1AA</li>
+            <li class="mb-2"><i class="bi bi-telephone me-2"></i> 012345678901</li>
+            <li><i class="bi bi-envelope me-2"></i> contact@shadymeadowsbnb.com</li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h5 class="mb-3">Quick Links</h5>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2"><a href="index.html" class="text-white text-decoration-none">Home</a></li>
+            <li class="mb-2"><a href="index.html#rooms" class="text-white text-decoration-none">Rooms</a></li>
+            <li class="mb-2"><a href="index.html#booking" class="text-white text-decoration-none">Booking</a></li>
+            <li class="mb-2"><a href="amenities.html" class="text-white text-decoration-none">Amenities</a></li>
+            <li><a href="index.html#contact" class="text-white text-decoration-none">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="text-center">
+        <small>
+          restful-booker-platform v2.2 Created by
+          <a href="http://www.mwtestconsultancy.co.uk/" class="text-white">Mark Winteringham</a> -
+          &copy; 2019-26
+          <a href="https://automationintesting.online/cookie" class="text-white">Cookie-Policy</a> -
+          <a href="https://automationintesting.online/privacy" class="text-white">Privacy-Policy</a>
+        </small>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- #root-container -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+
+<script>
+  // Scroll-triggered fade-up animation
+  document.addEventListener('DOMContentLoaded', function () {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up').forEach(function (el) {
+      observer.observe(el);
+    });
+  });
+</script>
+
+</body>
+</html>

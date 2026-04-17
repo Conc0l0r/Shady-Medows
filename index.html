@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en" id="root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="en">
+  <meta name="description" content="A platform for testing restful web services">
+  <title>Restful-booker-platform demo</title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --green-dark:  #2d4a3e;
+  --green-mid:   #3d6b5a;
+  --green-light: #e8f0ec;
+  --gold:        #c8a96e;
+  --gold-light:  #f5ecd8;
+  --text-dark:   #1a2820;
+  --text-muted:  #6c757d;
+  --white:       #ffffff;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body { font-family: 'Lato', sans-serif; color: var(--text-dark); margin: 0; }
+h1,h2,h3,h4,h5 { font-family: 'Playfair Display', serif; }
+
+/* ── Navbar ── */
+.navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--green-dark) !important; font-weight: 700; }
+.nav-link { color: var(--green-dark) !important; font-weight: 500; font-size: 0.9rem; letter-spacing: 0.02em; }
+.nav-link:hover { color: var(--gold) !important; }
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 60%, #4e8a72 100%);
+  color: var(--white);
+  padding: 6rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(200,169,110,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.07) 0%, transparent 40%);
+  pointer-events: none;
+}
+.hero .lead { color: rgba(255,255,255,0.85); font-weight: 300; font-size: 1.15rem; }
+.hero-badge {
+  display: inline-block; background: var(--gold); color: var(--green-dark);
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.35rem 0.9rem; border-radius: 2rem; margin-bottom: 1rem;
+}
+.hero-divider { width: 60px; height: 3px; background: var(--gold); margin: 1.5rem auto; border-radius: 2px; }
+
+/* ── Buttons ── */
+.btn-gold {
+  background: var(--gold); color: var(--green-dark); font-weight: 700; border: none;
+  padding: 0.7rem 2rem; border-radius: 2rem; letter-spacing: 0.03em;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.btn-gold:hover { background: #b8945a; color: var(--white); transform: translateY(-2px); }
+.btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+.btn-primary { background: var(--green-dark); border-color: var(--green-dark); }
+.btn-primary:hover { background: var(--green-mid); border-color: var(--green-mid); }
+
+/* ── Booking strip ── */
+.booking-card { border: none; border-radius: 16px; box-shadow: 0 4px 24px rgba(45,74,62,0.12); }
+
+/* ── Rooms ── */
+.section-divider { padding: 5rem 0; }
+.room-card { border-radius: 14px; border: none; transition: transform 0.22s ease, box-shadow 0.22s ease; overflow: hidden; }
+.room-card:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(45,74,62,0.16) !important; }
+.room-image { height: 200px; overflow: hidden; background: var(--green-light); }
+.room-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.room-card:hover .room-image img { transform: scale(1.06); }
+.room-card .card-title { font-family: 'Playfair Display', serif; color: var(--green-dark); }
+
+/* ── Location ── */
+#map-container { border-radius: 10px; min-height: 280px; object-fit: cover; }
+
+/* ── Contact form ── */
+.form-control:focus { border-color: var(--green-mid); box-shadow: 0 0 0 0.2rem rgba(61,107,90,0.2); }
+
+/* ── Footer ── */
+footer a { color: rgba(255,255,255,0.65); text-decoration: none; }
+footer a:hover { color: var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   BOOKING OVERLAY / PAGE
+══════════════════════════════════════════════════ */
+#bookingPage {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  overflow-y: auto;
+  background: #f4f7f5;
+}
+
+#bookingPage.active { display: block; }
+
+/* Booking navbar */
+.booking-nav {
+  background: var(--white);
+  box-shadow: 0 2px 12px rgba(45,74,62,0.08);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.booking-nav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.booking-nav-brand { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-dark); font-weight: 700; flex: 1; }
+.btn-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: none; border: 1.5px solid var(--green-dark); color: var(--green-dark);
+  padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.18s ease;
+}
+.btn-back:hover { background: var(--green-dark); color: var(--white); }
+
+/* Booking content */
+.booking-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* Progress steps */
+.step-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 2.5rem;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #d0dbd6;
+  z-index: 0;
+}
+.step-item.done:not(:last-child)::after { background: var(--green-mid); }
+.step-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; z-index: 1;
+  border: 2px solid #d0dbd6;
+  background: var(--white); color: var(--text-muted);
+  transition: all 0.25s;
+}
+.step-item.active .step-circle { border-color: var(--green-dark); background: var(--green-dark); color: var(--white); }
+.step-item.done .step-circle { border-color: var(--green-mid); background: var(--green-mid); color: var(--white); }
+.step-label { font-size: 0.72rem; margin-top: 0.4rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.step-item.active .step-label { color: var(--green-dark); }
+
+/* Room summary card */
+.room-summary {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(45,74,62,0.08);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.room-summary-header {
+  background: var(--green-dark);
+  color: var(--white);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.room-summary-header h4 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.2rem; }
+.price-badge {
+  background: var(--gold); color: var(--green-dark);
+  font-weight: 700; font-size: 1rem; padding: 0.3rem 0.9rem; border-radius: 2rem;
+}
+.room-summary-body { padding: 1.25rem 1.5rem; }
+.amenity-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: var(--green-light); color: var(--green-dark);
+  border-radius: 2rem; padding: 0.25rem 0.75rem; font-size: 0.82rem; font-weight: 600; margin: 0.2rem;
+}
+
+/* Stay summary */
+.stay-card {
+  background: var(--gold-light);
+  border-radius: 12px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  text-align: center;
+}
+.stay-card .sc-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.2rem; }
+.stay-card .sc-value { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--green-dark); font-weight: 700; }
+.stay-card .sc-divider { border-left: 1px solid rgba(45,74,62,0.15); }
+
+/* Form sections */
+.form-section {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(45,74,62,0.08);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+.form-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; color: var(--green-dark); margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem; border-bottom: 2px solid var(--green-light);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.form-section-title i { color: var(--gold); font-size: 1rem; }
+.form-label { font-size: 0.85rem; font-weight: 700; color: var(--green-dark); margin-bottom: 0.3rem; }
+.form-control, .form-select {
+  border-radius: 8px; border: 1.5px solid #d0dbd6;
+  font-size: 0.9rem; padding: 0.55rem 0.85rem;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(61,107,90,0.12); outline: none;
+}
+.form-control.is-invalid { border-color: #dc3545; }
+.invalid-feedback { font-size: 0.78rem; }
+
+/* Price breakdown */
+.price-breakdown {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(45,74,62,0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.price-line { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; font-size: 0.9rem; }
+.price-line.total {
+  border-top: 2px solid var(--green-light); margin-top: 0.5rem; padding-top: 1rem;
+  font-weight: 700; font-size: 1.1rem; color: var(--green-dark);
+}
+.price-line.total span:last-child { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--green-dark); }
+
+/* Confirm button */
+.btn-confirm {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+  color: var(--white); border: none; border-radius: 2rem;
+  padding: 0.85rem 2.5rem; font-size: 1rem; font-weight: 700;
+  letter-spacing: 0.04em; width: 100%; cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(45,74,62,0.25);
+}
+.btn-confirm:hover { opacity: 0.9; transform: translateY(-2px); }
+.btn-confirm:active { transform: translateY(0); }
+
+/* Success screen */
+.success-screen { text-align: center; padding: 3rem 1.5rem; }
+.success-icon {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--green-light); display: inline-flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; color: var(--green-dark); margin-bottom: 1.5rem;
+}
+.booking-ref {
+  background: var(--gold-light); border-radius: 10px; padding: 1rem 2rem;
+  display: inline-block; margin: 1rem 0;
+  font-family: 'Playfair Display', serif; font-size: 1.5rem;
+  color: var(--green-dark); letter-spacing: 0.1em; font-weight: 700;
+}
+
+/* Panels */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* Fade animation */
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.booking-content { animation: fadeSlideIn 0.35s ease; }
+</style>
+</head>
+
+<body>
+<div id="root-container">
+
+  <!-- ══════════ MAIN SITE ══════════ -->
+  <div id="mainSite">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <span>Shady Meadows B&amp;B</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#rooms">Rooms</a></li>
+            <li class="nav-item"><a class="nav-link" href="#booking">Booking</a></li>
+            <li class="nav-item"><a class="nav-link" href="#location">Location</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero text-center">
+      <div class="container position-relative">
+        <span class="hero-badge">Welcome to</span><br>
+        <h1 class="display-4 fw-bold mb-3">Shady Meadows B&amp;B</h1>
+        <div class="hero-divider"></div>
+        <p class="lead col-lg-6 mx-auto">
+          A peaceful countryside escape with comfortable rooms and locally sourced breakfast.
+        </p>
+        <div class="mt-4">
+          <a href="#booking" class="btn btn-gold btn-lg me-3">Book Now</a>
+          <a href="#rooms" class="btn btn-outline-light btn-lg">Explore Rooms</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKING -->
+    <section id="booking" class="py-4 bg-white">
+      <div class="container">
+        <div class="card shadow booking-card">
+          <div class="card-body p-4">
+            <h3 class="card-title text-center mb-4" style="font-family:'Playfair Display',serif; color:var(--green-dark);">
+              Check Availability &amp; Book Your Stay
+            </h3>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-5">
+                <label for="checkin" class="form-label">Check In</label>
+                <input class="form-control" type="date" id="checkin" name="checkin">
+              </div>
+              <div class="col-md-5">
+                <label for="checkout" class="form-label">Check Out</label>
+                <input class="form-control" type="date" id="checkout" name="checkout">
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-primary w-100 py-2" id="checkAvailabilityBtn">Check</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOMS -->
+    <section id="rooms" class="section-divider">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5" style="color:var(--green-dark);">Our Rooms</h2>
+          <p class="lead text-muted">Comfortable beds and delightful breakfast from locally sourced ingredients</p>
+          <div style="width:44px;height:3px;background:var(--gold);border-radius:2px;margin:1rem auto 0;"></div>
+        </div>
+        <div class="row g-4">
+
+          <!-- Single -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm room-card">
+              <div class="room-image">
+                <img alt="Single Room" src="imgs/room1.jpg" onerror="this.style.background='#c8d8d0';this.style.height='200px';this.src=''">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Single</h5>
+                <p class="card-text text-muted" style="font-size:0.9rem;">
+                  Aenean porttitor mauris sit amet lacinia molestie. In posuere accumsan aliquet.
+                  Maecenas sit amet nisl massa. Interdum et malesuada fames ac ante.
+                </p>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                  <span class="badge bg-light text-dark"><i class="bi bi-tv me-1"></i>TV</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-wifi me-1"></i>WiFi</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-safe me-1"></i>Safe</span>
+                </div>
+              </div>
+              <div class="card-footer bg-white d-flex justify-content-between align-items-center" style="border-top:1px solid var(--green-light);">
+                <div class="fw-bold" style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--green-dark);">
+                  £100 <small class="text-muted fw-normal" style="font-family:'Lato',sans-serif;font-size:0.8rem;">per night</small>
+                </div>
+                <button class="btn btn-primary btn-book" data-room="Single" data-price="100"
+                        data-amenities="TV,WiFi,Safe">Book now</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Double -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm room-card">
+              <div class="room-image">
+                <img alt="Double Room" src="imgs/room2.jpg" onerror="this.style.background='#b8ccc4';this.style.height='200px';this.src=''">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Double</h5>
+                <p class="card-text text-muted" style="font-size:0.9rem;">
+                  Vestibulum sollicitudin, lectus ac mollis consequat, lorem orci ultrices tellus,
+                  eleifend euismod tortor dui egestas erat. Phasellus et ipsum nisl.
+                </p>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                  <span class="badge bg-light text-dark"><i class="bi bi-tv me-1"></i>TV</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-speaker me-1"></i>Radio</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-safe me-1"></i>Safe</span>
+                </div>
+              </div>
+              <div class="card-footer bg-white d-flex justify-content-between align-items-center" style="border-top:1px solid var(--green-light);">
+                <div class="fw-bold" style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--green-dark);">
+                  £150 <small class="text-muted fw-normal" style="font-family:'Lato',sans-serif;font-size:0.8rem;">per night</small>
+                </div>
+                <button class="btn btn-primary btn-book" data-room="Double" data-price="150"
+                        data-amenities="TV,Radio,Safe">Book now</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Suite -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm room-card">
+              <div class="room-image">
+                <img alt="Suite Room" src="imgs/room3.jpg" onerror="this.style.background='#a8bcb4';this.style.height='200px';this.src=''">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Suite</h5>
+                <p class="card-text text-muted" style="font-size:0.9rem;">
+                  Etiam metus metus, fringilla ac sagittis id, consequat vel neque.
+                  Nunc commodo quis nisl nec posuere. Etiam at accumsan ex.
+                </p>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                  <span class="badge bg-light text-dark"><i class="bi bi-speaker me-1"></i>Radio</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-wifi me-1"></i>WiFi</span>
+                  <span class="badge bg-light text-dark"><i class="bi bi-safe me-1"></i>Safe</span>
+                </div>
+              </div>
+              <div class="card-footer bg-white d-flex justify-content-between align-items-center" style="border-top:1px solid var(--green-light);">
+                <div class="fw-bold" style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--green-dark);">
+                  £225 <small class="text-muted fw-normal" style="font-family:'Lato',sans-serif;font-size:0.8rem;">per night</small>
+                </div>
+                <button class="btn btn-primary btn-book" data-room="Suite" data-price="225"
+                        data-amenities="Radio,WiFi,Safe">Book now</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCATION -->
+    <section id="location" class="section-divider bg-light py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5" style="color:var(--green-dark);">Our Location</h2>
+          <p class="lead text-muted">Find us in the beautiful Newingtonfordburyshire countryside</p>
+          <div style="width:44px;height:3px;background:var(--gold);border-radius:2px;margin:1rem auto 0;"></div>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+              <img src="imgs/map1.png" alt="Map placeholder" class="w-100" id="map-container"
+                   style="border-radius:10px;min-height:280px;object-fit:cover;"
+                   onerror="this.outerHTML='<div style=\'min-height:280px;background:var(--green-light);border-radius:10px;display:flex;align-items:center;justify-content:center;\'><i class=\'bi bi-map\' style=\'font-size:3rem;color:var(--green-dark);\'></i></div>'">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <h3 class="h4 mb-4" style="font-family:'Playfair Display',serif;color:var(--green-dark);">Contact Information</h3>
+                <div class="d-flex mb-4">
+                  <div class="me-3" style="color:var(--gold);"><i class="bi bi-geo-alt fs-4"></i></div>
+                  <div><h5 style="color:var(--green-dark);">Address</h5>
+                    <p class="mb-0 text-muted">Shady Meadows B&amp;B, Shadows valley, Newingtonfordburyshire, Dilbery, N1 1AA</p></div>
+                </div>
+                <div class="d-flex mb-4">
+                  <div class="me-3" style="color:var(--gold);"><i class="bi bi-telephone fs-4"></i></div>
+                  <div><h5 style="color:var(--green-dark);">Phone</h5><p class="mb-0 text-muted">012345678901</p></div>
+                </div>
+                <div class="d-flex mb-4">
+                  <div class="me-3" style="color:var(--gold);"><i class="bi bi-envelope fs-4"></i></div>
+                  <div><h5 style="color:var(--green-dark);">Email</h5><p class="mb-0 text-muted">contact@shadymeadowsbnb.com</p></div>
+                </div>
+                <hr>
+                <h4 class="h5 mb-3" style="color:var(--green-dark);">Getting Here</h4>
+                <p class="text-muted" style="font-size:0.9rem;">
+                  Welcome to Shady Meadows, a delightful Bed &amp; Breakfast nestled in the hills on
+                  Newingtonfordburyshire. A place so beautiful you will never want to leave.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5" style="color:var(--green-dark);">Send Us a Message</h2>
+          <div style="width:44px;height:3px;background:var(--gold);border-radius:2px;margin:1rem auto 0;"></div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="card shadow">
+              <div class="card-body p-4">
+                <div id="formError" class="alert alert-danger d-none" role="alert"></div>
+                <div id="formSuccess" class="alert alert-success d-none" role="alert"></div>
+                <form id="contactForm" novalidate>
+                  <input type="hidden" name="_csrf" id="csrf_token" value="">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input data-testid="ContactName" class="form-control" id="name" type="text"
+                           required minlength="3" placeholder="Enter your full name">
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input data-testid="ContactEmail" class="form-control" id="email" type="email"
+                           required placeholder="Enter your email address">
+                  </div>
+                  <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input data-testid="ContactPhone" class="form-control" id="phone" type="tel"
+                           required pattern="[0-9]{7,15}" placeholder="Enter your phone number">
+                  </div>
+                  <div class="mb-3">
+                    <label for="subject" class="form-label">Subject</label>
+                    <input data-testid="ContactSubject" class="form-control" id="subject" type="text"
+                           required minlength="5" placeholder="Enter message subject">
+                  </div>
+                  <div class="mb-4">
+                    <label for="description" class="form-label">Message</label>
+                    <textarea data-testid="ContactDescription" class="form-control" id="description"
+                              rows="5" required minlength="20" placeholder="Enter your message (at least 20 characters)"></textarea>
+                  </div>
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-primary py-2">Submit</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <h5 class="mb-3" style="font-family:'Playfair Display',serif;">Shady Meadows B&amp;B</h5>
+            <p class="mb-3" style="font-size:0.88rem;color:rgba(255,255,255,0.7);">
+              A delightful Bed &amp; Breakfast nestled in the hills on Newingtonfordburyshire.
+              A place so beautiful you will never want to leave.
+            </p>
+            <div class="d-flex gap-2">
+              <a href="https://facebook.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-facebook"></i></a>
+              <a href="https://instagram.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-instagram"></i></a>
+              <a href="https://twitter.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-light rounded-circle"><i class="bi bi-twitter"></i></a>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <h5 class="mb-3" style="font-family:'Playfair Display',serif;">Contact Us</h5>
+            <ul class="list-unstyled mb-0" style="font-size:0.88rem;color:rgba(255,255,255,0.7);">
+              <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Shady Meadows B&amp;B, Shadows valley, Newingtonfordburyshire, Dilbery, N1 1AA</li>
+              <li class="mb-2"><i class="bi bi-telephone me-2"></i> 012345678901</li>
+              <li><i class="bi bi-envelope me-2"></i> contact@shadymeadowsbnb.com</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h5 class="mb-3" style="font-family:'Playfair Display',serif;">Quick Links</h5>
+            <ul class="list-unstyled mb-0" style="font-size:0.88rem;">
+              <li class="mb-2"><a href="#root">Home</a></li>
+              <li class="mb-2"><a href="#rooms">Rooms</a></li>
+              <li class="mb-2"><a href="#booking">Booking</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        <hr class="my-4" style="border-color:rgba(255,255,255,0.15);">
+        <div class="text-center" style="font-size:0.8rem;color:rgba(255,255,255,0.5);">
+          restful-booker-platform v2.2 Created by
+          <a href="http://www.mwtestconsultancy.co.uk/">Mark Winteringham</a> — &copy; 2019-26
+          <a href="https://automationintesting.online/cookie">Cookie-Policy</a> —
+          <a href="https://automationintesting.online/privacy">Privacy-Policy</a>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- #mainSite -->
+
+
+  <!-- ══════════════════════════════════════
+       BOOKING PAGE (full-screen overlay)
+  ═══════════════════════════════════════════ -->
+  <div id="bookingPage">
+
+    <!-- Sticky nav -->
+    <div class="booking-nav">
+      <div class="booking-nav-inner">
+        <button class="btn-back" id="btnBack"><i class="bi bi-arrow-left"></i> Back</button>
+        <span class="booking-nav-brand">Shady Meadows B&amp;B — Reservation</span>
+        <span id="navStepLabel" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;"></span>
+      </div>
+    </div>
+
+    <div class="booking-content">
+
+      <!-- Progress bar -->
+      <div class="step-bar" id="stepBar">
+        <div class="step-item active" id="si0">
+          <div class="step-circle">1</div>
+          <span class="step-label">Your Stay</span>
+        </div>
+        <div class="step-item" id="si1">
+          <div class="step-circle">2</div>
+          <span class="step-label">Guest Info</span>
+        </div>
+        <div class="step-item" id="si2">
+          <div class="step-circle">3</div>
+          <span class="step-label">Confirm</span>
+        </div>
+        <div class="step-item" id="si3">
+          <div class="step-circle"><i class="bi bi-check" style="font-size:1rem;"></i></div>
+          <span class="step-label">Done</span>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: Stay Details ── -->
+      <div class="step-panel active" id="panel0">
+        <div class="room-summary">
+          <div class="room-summary-header">
+            <h4 id="bp-roomName">Room</h4>
+            <span class="price-badge" id="bp-price">£—</span>
+          </div>
+          <div class="room-summary-body">
+            <p class="text-muted mb-2" style="font-size:0.88rem;">Included amenities:</p>
+            <div id="bp-amenities"></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="bi bi-calendar3"></i> Select Your Dates</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Check-in Date</label>
+              <input type="date" class="form-control" id="bp-checkin">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-out Date</label>
+              <input type="date" class="form-control" id="bp-checkout">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Guests</label>
+              <select class="form-select" id="bp-guests">
+                <option value="1">1 Guest</option>
+                <option value="2">2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+              </select>
+            </div>
+          </div>
+          <div id="dateError" class="text-danger mt-2 d-none" style="font-size:0.82rem;"></div>
+        </div>
+
+        <!-- Live price preview -->
+        <div class="stay-card" id="stayPreview">
+          <div>
+            <div class="sc-label">Check-in</div>
+            <div class="sc-value" id="pc-checkin">—</div>
+          </div>
+          <div class="sc-divider">
+            <div class="sc-label">Nights</div>
+            <div class="sc-value" id="pc-nights">—</div>
+          </div>
+          <div class="sc-divider">
+            <div class="sc-label">Total</div>
+            <div class="sc-value" id="pc-total">—</div>
+          </div>
+        </div>
+
+        <button class="btn-confirm" id="btnStep1">Continue to Guest Details →</button>
+      </div>
+
+      <!-- ── STEP 2: Guest Info ── -->
+      <div class="step-panel" id="panel1">
+        <div class="form-section">
+          <div class="form-section-title"><i class="bi bi-person"></i> Guest Details</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-control" id="g-firstname" placeholder="John" required>
+              <div class="invalid-feedback">Please enter your first name.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-control" id="g-lastname" placeholder="Smith" required>
+              <div class="invalid-feedback">Please enter your last name.</div>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Email Address *</label>
+              <input type="email" class="form-control" id="g-email" placeholder="john@example.com" required>
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Phone *</label>
+              <input type="tel" class="form-control" id="g-phone" placeholder="07700900000" required>
+              <div class="invalid-feedback">Enter a valid phone number.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="bi bi-chat-square-text"></i> Special Requests <small style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">(optional)</small></div>
+          <textarea class="form-control" id="g-requests" rows="3"
+            placeholder="e.g. early check-in, dietary requirements, cot for infant…"></textarea>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="bi bi-credit-card"></i> Payment Details</div>
+          <p class="text-muted mb-3" style="font-size:0.85rem;">Your card will not be charged until check-in. We accept all major cards.</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Cardholder Name *</label>
+              <input type="text" class="form-control" id="g-cardname" placeholder="John Smith" required>
+              <div class="invalid-feedback">Please enter the cardholder name.</div>
+            </div>
+            <div class="col-md-7">
+              <label class="form-label">Card Number *</label>
+              <input type="text" class="form-control" id="g-cardnum" placeholder="•••• •••• •••• ••••" maxlength="19" required>
+              <div class="invalid-feedback">Enter a valid 16-digit card number.</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Expiry *</label>
+              <input type="text" class="form-control" id="g-expiry" placeholder="MM/YY" maxlength="5" required>
+              <div class="invalid-feedback">Enter MM/YY.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">CVV *</label>
+              <input type="text" class="form-control" id="g-cvv" placeholder="•••" maxlength="4" required>
+              <div class="invalid-feedback">Enter CVV.</div>
+            </div>
+          </div>
+          <div id="payError" class="text-danger mt-2 d-none" style="font-size:0.82rem;"></div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary py-2 px-4" id="btnStep2Back" style="border-radius:2rem;">← Back</button>
+          <button class="btn-confirm" id="btnStep2" style="flex:1;">Review Booking →</button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Confirm ── -->
+      <div class="step-panel" id="panel2">
+
+        <div class="form-section">
+          <div class="form-section-title"><i class="bi bi-clipboard-check"></i> Booking Summary</div>
+          <div class="row g-2" style="font-size:0.88rem;">
+            <div class="col-6 text-muted">Room</div><div class="col-6 fw-bold" id="cs-room">—</div>
+            <div class="col-6 text-muted">Guest</div><div class="col-6" id="cs-guest">—</div>
+            <div class="col-6 text-muted">Check-in</div><div class="col-6" id="cs-checkin">—</div>
+            <div class="col-6 text-muted">Check-out</div><div class="col-6" id="cs-checkout">—</div>
+            <div class="col-6 text-muted">Guests</div><div class="col-6" id="cs-guests">—</div>
+            <div class="col-6 text-muted">Special Requests</div><div class="col-6 text-muted fst-italic" id="cs-requests">None</div>
+          </div>
+        </div>
+
+        <div class="price-breakdown">
+          <div class="price-line"><span class="text-muted" id="cs-nightline">— × £—/night</span><span id="cs-subtotal">—</span></div>
+          <div class="price-line"><span class="text-muted">Breakfast (included)</span><span style="color:#2d8653;font-weight:600;">Free</span></div>
+          <div class="price-line"><span class="text-muted">Taxes &amp; fees (10%)</span><span id="cs-tax">—</span></div>
+          <div class="price-line total"><span>Total</span><span id="cs-total">—</span></div>
+        </div>
+
+        <div class="form-section" style="background:var(--green-light);border:none;box-shadow:none;">
+          <p style="font-size:0.82rem;color:var(--green-dark);margin:0;">
+            <i class="bi bi-shield-check me-1"></i>
+            By confirming, you agree to our <a href="#" style="color:var(--green-dark);font-weight:700;">cancellation policy</a>.
+            Free cancellation up to 48 hours before check-in. Your card will not be charged until check-in.
+          </p>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary py-2 px-4" id="btnStep3Back" style="border-radius:2rem;">← Back</button>
+          <button class="btn-confirm" id="btnConfirm" style="flex:1;">
+            <i class="bi bi-lock-fill me-1"></i> Confirm Booking
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: Success ── -->
+      <div class="step-panel" id="panel3">
+        <div class="success-screen">
+          <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+          <h2 style="font-family:'Playfair Display',serif;color:var(--green-dark);">Booking Confirmed!</h2>
+          <p class="text-muted">Thank you for choosing Shady Meadows. A confirmation has been sent to your email.</p>
+          <div class="booking-ref" id="successRef">SMB-XXXXXX</div>
+          <p class="text-muted" style="font-size:0.85rem;">Please quote this reference on arrival.</p>
+
+          <div class="stay-card mt-4" id="successStay">
+            <div>
+              <div class="sc-label">Room</div>
+              <div class="sc-value" id="ss-room">—</div>
+            </div>
+            <div class="sc-divider">
+              <div class="sc-label">Check-in</div>
+              <div class="sc-value" id="ss-checkin">—</div>
+            </div>
+            <div class="sc-divider">
+              <div class="sc-label">Total</div>
+              <div class="sc-value" id="ss-total">—</div>
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+            <button class="btn-gold btn btn-lg" id="btnDone">Return to Home</button>
+            <button class="btn btn-outline-secondary btn-lg" onclick="window.print()" style="border-radius:2rem;">
+              <i class="bi bi-printer me-1"></i> Print
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .booking-content -->
+  </div><!-- #bookingPage -->
+
+</div><!-- #root-container -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+var booking = {
+  room: '', price: 0, amenities: [],
+  checkin: '', checkout: '', nights: 0, guests: 1,
+  firstname: '', lastname: '', email: '', phone: '',
+  cardname: '', cardnum: '', expiry: '', cvv: '',
+  requests: ''
+};
+
+var currentStep = 0;
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function () {
+  initDatePickers();
+  initContactForm();
+  initBookingButtons();
+
+  document.getElementById('btnBack').addEventListener('click', closeBookingPage);
+  document.getElementById('btnDone').addEventListener('click', closeBookingPage);
+  document.getElementById('btnStep1').addEventListener('click', goStep2);
+  document.getElementById('btnStep2').addEventListener('click', goStep3);
+  document.getElementById('btnStep2Back').addEventListener('click', function() { goToStep(0); });
+  document.getElementById('btnStep3Back').addEventListener('click', function() { goToStep(1); });
+  document.getElementById('btnConfirm').addEventListener('click', confirmBooking);
+
+  // Card number formatting
+  document.getElementById('g-cardnum').addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '').substring(0,16);
+    this.value = v.replace(/(.{4})/g, '$1 ').trim();
+  });
+  // Expiry formatting
+  document.getElementById('g-expiry').addEventListener('input', function() {
+    var v = this.value.replace(/\D/g,'').substring(0,4);
+    if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2);
+    this.value = v;
+  });
+  // Live price update
+  document.getElementById('bp-checkin').addEventListener('change', updatePricePreview);
+  document.getElementById('bp-checkout').addEventListener('change', updatePricePreview);
+});
+
+// ═══════════════════════════════════════════════
+//  MAIN SITE DATE PICKERS
+// ═══════════════════════════════════════════════
+function initDatePickers() {
+  var today = new Date();
+  var tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+  var ci = document.getElementById('checkin');
+  var co = document.getElementById('checkout');
+  ci.min = co.min = toISO(today);
+  ci.value = toISO(today);
+  co.min = toISO(tomorrow); co.value = toISO(tomorrow);
+  ci.addEventListener('change', function() {
+    var next = new Date(this.value); next.setDate(next.getDate()+1);
+    co.min = toISO(next);
+    if (co.value && new Date(co.value) <= new Date(this.value)) co.value = toISO(next);
+  });
+  document.getElementById('checkAvailabilityBtn').addEventListener('click', function() {
+    var inD = new Date(ci.value), outD = new Date(co.value);
+    var today2 = new Date(); today2.setHours(0,0,0,0);
+    if (!ci.value) { alert('Please select a check-in date.'); ci.focus(); return; }
+    if (!co.value) { alert('Please select a check-out date.'); co.focus(); return; }
+    if (inD < today2) { alert('Check-in date cannot be in the past.'); ci.focus(); return; }
+    if (outD <= inD) { alert('Check-out date must be after check-in date.'); co.focus(); return; }
+    var nights = Math.round((outD - inD) / 86400000);
+    alert('✅ Available! ' + nights + ' night(s) from ' + formatDate(inD) + '.\nScroll down to choose your room.');
+    document.getElementById('rooms').scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  BOOKING BUTTONS
+// ═══════════════════════════════════════════════
+function initBookingButtons() {
+  document.querySelectorAll('.btn-book').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      booking.room = this.dataset.room;
+      booking.price = parseInt(this.dataset.price);
+      booking.amenities = this.dataset.amenities.split(',');
+      openBookingPage();
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  OPEN / CLOSE BOOKING PAGE
+// ═══════════════════════════════════════════════
+function openBookingPage() {
+  // Pre-fill dates from main form if set
+  var mainIn = document.getElementById('checkin').value;
+  var mainOut = document.getElementById('checkout').value;
+
+  var today = new Date();
+  var tomorrow = new Date(); tomorrow.setDate(today.getDate()+1);
+
+  var bpIn = document.getElementById('bp-checkin');
+  var bpOut = document.getElementById('bp-checkout');
+  bpIn.min = toISO(today);
+  bpOut.min = toISO(tomorrow);
+  bpIn.value = mainIn || toISO(today);
+  bpOut.value = mainOut || toISO(tomorrow);
+
+  // Room display
+  document.getElementById('bp-roomName').textContent = booking.room + ' Room';
+  document.getElementById('bp-price').textContent = '£' + booking.price + '/night';
+
+  var amenitiesEl = document.getElementById('bp-amenities');
+  amenitiesEl.innerHTML = '';
+  var iconMap = { TV:'bi-tv', WiFi:'bi-wifi', Safe:'bi-safe', Radio:'bi-speaker' };
+  booking.amenities.forEach(function(a) {
+    var chip = document.createElement('span');
+    chip.className = 'amenity-chip';
+    chip.innerHTML = '<i class="bi ' + (iconMap[a] || 'bi-check') + '"></i>' + a;
+    amenitiesEl.appendChild(chip);
+  });
+
+  updatePricePreview();
+  goToStep(0);
+
+  document.getElementById('bookingPage').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  window.scrollTo(0, 0);
+}
+
+function closeBookingPage() {
+  document.getElementById('bookingPage').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════
+//  STEP NAVIGATION
+// ═══════════════════════════════════════════════
+function goToStep(n) {
+  currentStep = n;
+  // Panels
+  document.querySelectorAll('.step-panel').forEach(function(p,i) {
+    p.classList.toggle('active', i === n);
+  });
+  // Step indicators
+  for (var i = 0; i < 4; i++) {
+    var si = document.getElementById('si' + i);
+    si.classList.remove('active','done');
+    if (i < n) si.classList.add('done');
+    if (i === n) si.classList.add('active');
+  }
+  document.getElementById('navStepLabel').textContent = 'Step ' + (n+1) + ' of 4';
+  document.getElementById('bookingPage').scrollTop = 0;
+}
+
+function goStep2() {
+  // Validate dates
+  var ci = document.getElementById('bp-checkin').value;
+  var co = document.getElementById('bp-checkout').value;
+  var err = document.getElementById('dateError');
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  if (!ci || !co) { showErr(err, 'Please select both check-in and check-out dates.'); return; }
+  var inD = new Date(ci), outD = new Date(co);
+  if (inD < today) { showErr(err, 'Check-in date cannot be in the past.'); return; }
+  if (outD <= inD) { showErr(err, 'Check-out must be after check-in.'); return; }
+
+  var nights = Math.round((outD - inD) / 86400000);
+  if (nights < 1) { showErr(err, 'Minimum stay is 1 night.'); return; }
+
+  err.classList.add('d-none');
+  booking.checkin = ci; booking.checkout = co;
+  booking.nights = nights; booking.guests = parseInt(document.getElementById('bp-guests').value);
+  goToStep(1);
+}
+
+function goStep3() {
+  var ok = true;
+
+  function req(id, test) {
+    var el = document.getElementById(id);
+    var val = el.value.trim();
+    var pass = test ? test(val) : val.length > 0;
+    el.classList.toggle('is-invalid', !pass);
+    if (!pass) ok = false;
+    return val;
+  }
+
+  booking.firstname = req('g-firstname');
+  booking.lastname  = req('g-lastname');
+  booking.email     = req('g-email', function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); });
+  booking.phone     = req('g-phone', function(v){ return /^[0-9\s\-\+]{7,15}$/.test(v); });
+  booking.cardname  = req('g-cardname');
+  booking.cardnum   = req('g-cardnum', function(v){ return v.replace(/\s/g,'').length === 16; });
+  booking.expiry    = req('g-expiry', function(v){ return /^\d{2}\/\d{2}$/.test(v); });
+  booking.cvv       = req('g-cvv', function(v){ return /^\d{3,4}$/.test(v); });
+  booking.requests  = document.getElementById('g-requests').value.trim();
+
+  var payErr = document.getElementById('payError');
+  if (!ok) { showErr(payErr, 'Please fix the errors above.'); return; }
+  payErr.classList.add('d-none');
+
+  // Populate confirm screen
+  var sub = booking.price * booking.nights;
+  var tax = Math.round(sub * 0.1);
+  var total = sub + tax;
+
+  document.getElementById('cs-room').textContent    = booking.room + ' Room';
+  document.getElementById('cs-guest').textContent   = booking.firstname + ' ' + booking.lastname;
+  document.getElementById('cs-checkin').textContent = formatDate(new Date(booking.checkin));
+  document.getElementById('cs-checkout').textContent= formatDate(new Date(booking.checkout));
+  document.getElementById('cs-guests').textContent  = booking.guests + ' guest' + (booking.guests>1?'s':'');
+  document.getElementById('cs-requests').textContent= booking.requests || 'None';
+  document.getElementById('cs-nightline').textContent = booking.nights + ' night' + (booking.nights>1?'s':'') + ' × £' + booking.price + '/night';
+  document.getElementById('cs-subtotal').textContent= '£' + sub;
+  document.getElementById('cs-tax').textContent     = '£' + tax;
+  document.getElementById('cs-total').textContent   = '£' + total;
+
+  goToStep(2);
+}
+
+function confirmBooking() {
+  var btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing…';
+
+  setTimeout(function() {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i> Confirm Booking';
+
+    var ref = 'SMB-' + Math.random().toString(36).substring(2,8).toUpperCase();
+    document.getElementById('successRef').textContent = ref;
+    document.getElementById('ss-room').textContent    = booking.room;
+    document.getElementById('ss-checkin').textContent = formatDate(new Date(booking.checkin));
+    var total = booking.price * booking.nights + Math.round(booking.price * booking.nights * 0.1);
+    document.getElementById('ss-total').textContent   = '£' + total;
+
+    goToStep(3);
+  }, 1800);
+}
+
+// ═══════════════════════════════════════════════
+//  LIVE PRICE PREVIEW
+// ═══════════════════════════════════════════════
+function updatePricePreview() {
+  var ci = document.getElementById('bp-checkin').value;
+  var co = document.getElementById('bp-checkout').value;
+  var pcIn = document.getElementById('pc-checkin');
+  var pcNights = document.getElementById('pc-nights');
+  var pcTotal = document.getElementById('pc-total');
+
+  if (ci && co) {
+    var inD = new Date(ci), outD = new Date(co);
+    var n = Math.round((outD - inD) / 86400000);
+    if (n > 0) {
+      pcIn.textContent = formatDateShort(inD);
+      pcNights.textContent = n;
+      pcTotal.textContent = '£' + (booking.price * n);
+      return;
+    }
+  }
+  pcIn.textContent = '—'; pcNights.textContent = '—'; pcTotal.textContent = '—';
+}
+
+// ═══════════════════════════════════════════════
+//  CONTACT FORM
+// ═══════════════════════════════════════════════
+function initContactForm() {
+  var csrfEl = document.getElementById('csrf_token');
+  if (csrfEl) csrfEl.value = Math.random().toString(36).substring(2) + Date.now().toString(36);
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var f = {
+      name:    document.getElementById('name').value.trim(),
+      email:   document.getElementById('email').value.trim(),
+      phone:   document.getElementById('phone').value.trim(),
+      subject: document.getElementById('subject').value.trim(),
+      message: document.getElementById('description').value.trim(),
+    };
+    var err = validateContact(f);
+    if (err) { showAlert('formError', err); hideAlert('formSuccess'); return; }
+    showAlert('formSuccess', '✅ Thank you! Your message has been sent. We will reply within 24 hours.');
+    hideAlert('formError');
+    e.target.reset();
+    document.getElementById('formSuccess').scrollIntoView({ behavior: 'smooth' });
+  });
+}
+function validateContact(f) {
+  if (!f.name || f.name.length < 3) return 'Name must be at least 3 characters.';
+  if (!f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) return 'Please enter a valid email address.';
+  if (!f.phone || !/^[0-9]{7,15}$/.test(f.phone.replace(/[\s\-\+]/g,''))) return 'Phone must be 7–15 digits.';
+  if (!f.subject || f.subject.length < 5) return 'Subject must be at least 5 characters.';
+  if (!f.message || f.message.length < 20) return 'Message must be at least 20 characters.';
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function toISO(d) { return d.toISOString().split('T')[0]; }
+function formatDate(d) { return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }); }
+function formatDateShort(d) { return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' }); }
+function showErr(el, msg) { el.textContent = msg; el.classList.remove('d-none'); }
+function showAlert(id, msg) { var e=document.getElementById(id); e.textContent=msg; e.classList.remove('d-none'); }
+function hideAlert(id) { document.getElementById(id).classList.add('d-none'); }
+</script>
+
+</body>
+</html>
