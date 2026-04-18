@@ -3,22 +3,22 @@ require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'shadymeadows');
-define('DB_USER', 'root');        // ← change to your MySQL username
-define('DB_PASS', '');            // ← change to your MySQL password
-define('DB_PORT', 3307);
+define('DB_HOST', getenv('MYSQLHOST')     ?: 'localhost');
+define('DB_NAME', getenv('MYSQLDATABASE') ?: 'shadymeadows');
+define('DB_USER', getenv('MYSQLUSER')     ?: 'root');
+define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
+define('DB_PORT', (int)(getenv('MYSQLPORT') ?: 3306));
 
 // SMTP / PHPMailer config
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
-define('SMTP_USER', 'shadymedows@gmail.com');   // your Gmail address
-define('SMTP_PASS', 'qsxokidnfpxbqjbx');        // your App Password
+define('SMTP_USER', 'shadymedows@gmail.com');   //  Gmail address
+define('SMTP_PASS', 'qsxokidnfpxbqjbx');        // App Password
 define('SMTP_FROM_NAME', 'Shady Meadows B&B');
 
 // Admin credentials (separate from DB users)
 define('ADMIN_EMAIL',    'shadymedows@gmail.com');
-define('ADMIN_PASSWORD', 'shadymedows1234admin'); // ← change this
+define('ADMIN_PASSWORD', 'shadymedows1234admin'); // acc password
 
 // Session lifetime: 2 hours
 define('SESSION_LIFETIME', 7200);
