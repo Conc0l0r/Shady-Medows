@@ -1,0 +1,12 @@
+{
+  "name": "shadymeadows/bnb",
+  "description": "Shady Meadows B&B booking system",
+  "require": {
+    "phpmailer/phpmailer": "^6.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "PHPMailer\\PHPMailer\\": "vendor/phpmailer/phpmailer/src/"
+    }
+  }
+}

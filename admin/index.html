@@ -1,0 +1,236 @@
+<!-- Admin index page-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel — Shady Meadows B&B</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="bi bi-tree-fill"></i>
+      <h1>Shady Meadows</h1>
+      <p class="login-sub">Admin Panel</p>
+    </div>
+    <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+    <div class="mb-3">
+      <label class="form-label">Admin Password</label>
+      <div class="input-group">
+        <input type="password" id="adminPassword" class="form-control" placeholder="Enter admin password">
+        <button class="btn btn-outline-secondary" type="button" id="togglePw">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-admin-primary w-100" id="loginBtn">
+      <i class="bi bi-shield-lock me-2"></i>Sign In
+    </button>
+    <p class="mt-3 text-center" style="font-size:.8rem;color:var(--tm);">
+      <a href="../index.html" style="color:var(--gm);">← Back to website</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN ADMIN LAYOUT
+═══════════════════════════════════════════════════════════ -->
+<div id="adminApp" class="d-none">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <i class="bi bi-tree-fill"></i>
+      <span>Shady Meadows</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" data-tab="bookings">
+        <i class="bi bi-calendar-check"></i> Bookings
+        <span class="badge-count" id="pendingCount">0</span>
+      </button>
+      <button class="sidebar-link" data-tab="messages">
+        <i class="bi bi-envelope"></i> Messages
+        <span class="badge-count" id="unreadCount">0</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="admin-email"><i class="bi bi-person-circle me-1"></i><span id="adminEmailDisplay"></span></span>
+      <button class="btn btn-sm btn-outline-danger mt-2 w-100" id="logoutBtn">
+        <i class="bi bi-box-arrow-left me-1"></i>Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+
+    <!-- Top bar -->
+    <header class="admin-topbar">
+      <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+      </button>
+      <h2 class="admin-page-title" id="pageTitle">Bookings</h2>
+      <button class="btn btn-sm btn-outline-secondary ms-auto" id="refreshBtn">
+        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+      </button>
+    </header>
+
+    <!-- ─── BOOKINGS TAB ─── -->
+    <div id="tabBookings" class="admin-tab active">
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e8f0ec;color:var(--gd)"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="stat-value" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#d4edda;color:#155724"><i class="bi bi-check-circle"></i></div>
+          <div>
+            <div class="stat-value" id="statConfirmed">0</div>
+            <div class="stat-label">Confirmed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#f8d7da;color:#721c24"><i class="bi bi-x-circle"></i></div>
+          <div>
+            <div class="stat-value" id="statCancelled">0</div>
+            <div class="stat-label">Cancelled</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff3cd;color:#856404"><i class="bi bi-currency-dollar"></i></div>
+          <div>
+            <div class="stat-value" id="statRevenue">$0</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <select class="form-select form-select-sm filter-select" id="bookingFilter">
+          <option value="all">All Statuses</option>
+          <option value="pending" selected>Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <input type="text" class="form-control form-control-sm" id="bookingSearch"
+               placeholder="Search name, email, ref…" style="max-width:240px;">
+      </div>
+
+      <div id="bookingsLoading" class="loading-msg"><i class="bi bi-hourglass-split me-2"></i>Loading bookings…</div>
+      <div id="bookingsEmpty" class="empty-msg d-none"><i class="bi bi-calendar-x"></i><p>No bookings found.</p></div>
+      <div id="bookingsTableWrap" class="table-wrap d-none">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Guest</th>
+              <th>Room</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Guests</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── MESSAGES TAB ─── -->
+    <div id="tabMessages" class="admin-tab d-none">
+      <div id="messagesLoading" class="loading-msg"><i class="bi bi-hourglass-split me-2"></i>Loading messages…</div>
+      <div id="messagesEmpty" class="empty-msg d-none"><i class="bi bi-inbox"></i><p>No messages yet.</p></div>
+      <div id="messagesList" class="messages-list d-none"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOOKING DETAIL MODAL
+═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header admin-modal-header">
+        <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i>Booking Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="bookingModalBody"></div>
+      <div class="modal-footer" id="bookingModalFooter"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     REPLY MODAL
+═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header admin-modal-header">
+        <h5 class="modal-title"><i class="bi bi-reply me-2"></i>Reply to Message</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="replyTo" class="text-muted mb-3" style="font-size:.88rem;"></p>
+        <label class="form-label fw-semibold">Your Reply</label>
+        <textarea id="replyText" class="form-control" rows="6" placeholder="Type your reply here…"></textarea>
+        <div id="replyError" class="text-danger mt-2 d-none" style="font-size:.85rem;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-admin-primary btn-sm" id="sendReplyBtn">
+          <i class="bi bi-send me-1"></i>Send Reply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STATUS MODAL (accept / reject with optional note)
+═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header admin-modal-header" id="statusModalHeader">
+        <h5 class="modal-title" id="statusModalTitle"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="statusModalDesc" style="font-size:.9rem;"></p>
+        <label class="form-label fw-semibold">Note to Guest <span class="text-muted fw-normal">(optional)</span></label>
+        <textarea id="statusNote" class="form-control" rows="3"
+                  placeholder="e.g. We look forward to welcoming you! / Sorry, all rooms are fully booked."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-sm" id="confirmStatusBtn"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

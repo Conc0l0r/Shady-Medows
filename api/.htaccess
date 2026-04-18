@@ -1,0 +1,10 @@
+SetEnvIfNoCase User-Agent ".*" noblock
+SetEnvIfNoCase Content-Type "application/json" noblock
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP:X-Requested-With} ^XMLHttpRequest$ [OR]
+  RewriteCond %{HTTP:Content-Type} application/json [OR]
+  RewriteCond %{REQUEST_METHOD} POST
+  RewriteRule ^ - [E=noblock:1]
+</IfModule>
