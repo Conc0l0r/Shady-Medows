@@ -1,5 +1,4 @@
 <?php
-<?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -8,13 +7,7 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
-// ============================================================
-//  api/auth.php
-//  POST /api/auth.php?action=register   { username, email, password }
-//  POST /api/auth.php?action=login      { username, password }
-//  POST /api/auth.php?action=logout
-//  GET  /api/auth.php?action=me
-// ============================================================
+
 require_once __DIR__ . '/config.php';
 startSession();
 
